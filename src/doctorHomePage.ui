@@ -56,7 +56,7 @@
    <property name="geometry">
     <rect>
      <x>680</x>
-     <y>220</y>
+     <y>280</y>
      <width>151</width>
      <height>41</height>
     </rect>
@@ -143,7 +143,7 @@
    <property name="geometry">
     <rect>
      <x>680</x>
-     <y>280</y>
+     <y>340</y>
      <width>151</width>
      <height>41</height>
     </rect>
@@ -161,7 +161,7 @@
    <property name="geometry">
     <rect>
      <x>680</x>
-     <y>340</y>
+     <y>400</y>
      <width>151</width>
      <height>41</height>
     </rect>
@@ -228,6 +228,24 @@
    </property>
    <property name="text">
     <string/>
+   </property>
+  </widget>
+  <widget class="QPushButton" name="changePasswordBtn">
+   <property name="geometry">
+    <rect>
+     <x>680</x>
+     <y>220</y>
+     <width>151</width>
+     <height>41</height>
+    </rect>
+   </property>
+   <property name="font">
+    <font>
+     <pointsize>10</pointsize>
+    </font>
+   </property>
+   <property name="text">
+    <string>Change Password</string>
    </property>
   </widget>
  </widget>

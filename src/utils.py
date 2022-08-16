@@ -13,7 +13,7 @@ def addData(user, path='userData.json'):
         file.seek(0)
         json.dump(data, file)
 
-def writeJson(data, path):
+def writeJson(data, path='userData.json'):
     with open(path, 'w') as file:
         json.dump(data, file)
 

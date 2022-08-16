@@ -125,7 +125,7 @@
    <property name="geometry">
     <rect>
      <x>630</x>
-     <y>270</y>
+     <y>330</y>
      <width>151</width>
      <height>41</height>
     </rect>
@@ -137,6 +137,24 @@
    </property>
    <property name="text">
     <string>Show Camera</string>
+   </property>
+  </widget>
+  <widget class="QPushButton" name="changePasswordBtn">
+   <property name="geometry">
+    <rect>
+     <x>630</x>
+     <y>270</y>
+     <width>151</width>
+     <height>41</height>
+    </rect>
+   </property>
+   <property name="font">
+    <font>
+     <pointsize>10</pointsize>
+    </font>
+   </property>
+   <property name="text">
+    <string>Change Password</string>
    </property>
   </widget>
  </widget>

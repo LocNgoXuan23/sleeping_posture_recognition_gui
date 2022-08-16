@@ -3,7 +3,7 @@ import sys
 from PyQt5 import QtWidgets
 from PyQt5.QtWidgets import QDialog, QApplication, QFileDialog, QLabel
 from PyQt5.uic import loadUi
-from engine import registerUser, loginUser, addPatientData, showCamera
+from engine import registerUser, loginUser, addPatientData, showCamera, changePassword
 from utils import readJson, writeJson, readJsonByRole, updateJsonByKey
 
 class Login(QDialog):
@@ -24,18 +24,19 @@ class Login(QDialog):
         if state == 1:
             ROLE = payload[0]
             NAME = payload[1]
+            EMAIL = payload[2]
             if ROLE == 'doctor':
-                doctorHome = DoctorHome(ROLE, NAME)
+                doctorHome = DoctorHome(ROLE, NAME, EMAIL)
                 widget.addWidget(doctorHome)
                 widget.setCurrentIndex(widget.currentIndex() + 1)
 
             elif ROLE == 'patient':
-                patientHome = PatientHome(ROLE, NAME)
+                patientHome = PatientHome(ROLE, NAME, EMAIL)
                 widget.addWidget(patientHome)
                 widget.setCurrentIndex(widget.currentIndex() + 1)
 
             elif ROLE == 'nurse':
-                nurseHome = NurseHome(ROLE, NAME)
+                nurseHome = NurseHome(ROLE, NAME, EMAIL)
                 widget.addWidget(nurseHome)
                 widget.setCurrentIndex(widget.currentIndex() + 1)
 
@@ -82,11 +83,12 @@ class Register(QDialog):
             self.alertLabel.setStyleSheet("color: Red")
 
 class DoctorHome(QDialog):
-    def __init__(self, role, name):
+    def __init__(self, role, name, email):
         super(DoctorHome, self).__init__()
         loadUi("doctorHomePage.ui", self)
         self.role = role
         self.name = name
+        self.email = email
         self.currentPatient = {'name': '', 'cameraID': ''}
         # initial
         self.initComponent()
@@ -103,6 +105,7 @@ class DoctorHome(QDialog):
         self.editPatienTableBtn.clicked.connect(self.editPatientFunction)
         self.patientTable.selectionModel().selectionChanged.connect(self.selectTableChanged)
         self.showCameraBtn.clicked.connect(self.showCameraFunction)
+        self.changePasswordBtn.clicked.connect(self.gotoChangePassword)
 
     def showCameraFunction(self):
         showCamera(self.currentPatient['cameraID'])
@@ -184,16 +187,22 @@ class DoctorHome(QDialog):
         widget.setCurrentIndex(widget.currentIndex()+1)
 
     def gotoAddPatient(self):
-        addPatient = AddPatient(self.role, self.name)
+        addPatient = AddPatient(self.role, self.name, self.email)
         widget.addWidget(addPatient)
         widget.setCurrentIndex(widget.currentIndex()+1)
 
+    def gotoChangePassword(self):
+        changePasswordHome = changePasswordPage(self.email, self.role, self.name)
+        widget.addWidget(changePasswordHome)
+        widget.setCurrentIndex(widget.currentIndex()+1)
+
 class PatientHome(QDialog):
-    def __init__(self, role, name):
+    def __init__(self, role, name, email):
         super(PatientHome, self).__init__()
         loadUi("patientHomePage.ui", self)
         self.role = role
         self.name = name
+        self.email = email
         self.initComponent()
         self.logoutBtn.clicked.connect(self.logoutFunction)
 
@@ -206,11 +215,12 @@ class PatientHome(QDialog):
         widget.setCurrentIndex(widget.currentIndex()+1)
 
 class NurseHome(QDialog):
-    def __init__(self, role, name):
+    def __init__(self, role, name, email):
         super(NurseHome, self).__init__()
         loadUi("nurseHomePage.ui", self)
         self.role = role
         self.name = name
+        self.email = email
         self.currentPatient = {'name': '', 'cameraID': ''}
         
         # Init component
@@ -223,6 +233,7 @@ class NurseHome(QDialog):
         self.logoutBtn.clicked.connect(self.logoutFunction)
         self.patientTable.selectionModel().selectionChanged.connect(self.selectTableChanged)
         self.showCameraBtn.clicked.connect(self.showCameraFunction)
+        self.changePasswordBtn.clicked.connect(self.gotoChangePassword)
 
     def showCameraFunction(self):
         showCamera(self.currentPatient['cameraID'])
@@ -259,13 +270,19 @@ class NurseHome(QDialog):
         login=Login()
         widget.addWidget(login)
         widget.setCurrentIndex(widget.currentIndex()+1)
+    
+    def gotoChangePassword(self):
+        changePasswordHome = changePasswordPage(self.email, self.role, self.name)
+        widget.addWidget(changePasswordHome)
+        widget.setCurrentIndex(widget.currentIndex()+1)
 
 class AddPatient(QDialog):
-    def __init__(self, role, name):
+    def __init__(self, role, name, email):
         super(AddPatient, self).__init__()
         loadUi("addPatientPage.ui", self)
         self.role = role
         self.name = name
+        self.email = email
 
         self.addBtn.clicked.connect(self.addPatientFunction)
     
@@ -287,7 +304,7 @@ class AddPatient(QDialog):
             
 
     def gotoDoctorHome(self):
-        doctorHome = DoctorHome(self.role, self.name)
+        doctorHome = DoctorHome(self.role, self.name, self.email)
         widget.addWidget(doctorHome)
         widget.setCurrentIndex(widget.currentIndex() + 1)
 
@@ -313,6 +330,50 @@ class ShowPatientCamera(QDialog):
 
     def initComponent(self):
         self.nameLabel.setText(f'Camera of patient : {self.patientName}')
+
+class changePasswordPage(QDialog):
+    def __init__(self, email, role, name):
+        super(changePasswordPage, self).__init__()
+        loadUi("changePasswordPage.ui", self)
+        self.email = email
+        self.role = role
+        self.name = name
+
+        # Even
+        self.changeBtn.clicked.connect(self.changePasswordFunction)
+
+    def changePasswordFunction(self):
+        state = changePassword(self.email, self.oldPasswordInput.text(), self.newPasswordInput.text(), self.confirmPasswordInput.text())
+
+        if state == -1:
+            self.alertLabel.setText("Vui Lòng nhập đầy đủ thông tin")
+            self.alertLabel.setStyleSheet("color: Red")
+
+        if state == -2:
+            self.alertLabel.setText("Không tồn tại Email!!")
+            self.alertLabel.setStyleSheet("color: Red")
+        
+        if state == -3:
+            self.alertLabel.setText("Sai password hiện tại!!")
+            self.alertLabel.setStyleSheet("color: Red")
+
+        if state == -4:
+            self.alertLabel.setText("Sai confirm password")
+            self.alertLabel.setStyleSheet("color: Red")
+
+        if state == 1:
+            self.oldPasswordInput.setText("")
+            self.newPasswordInput.setText("")
+            self.confirmPasswordInput.setText("")
+            self.gotoDoctorHome()
+
+    def gotoDoctorHome(self):
+        doctorHome = DoctorHome(self.role, self.name, self.email)
+        widget.addWidget(doctorHome)
+        widget.setCurrentIndex(widget.currentIndex() + 1)
+        
+    
+
 
 if __name__ == "__main__":
     app = QApplication(sys.argv)

@@ -1,4 +1,4 @@
-from utils import readJson, addData, getClassName
+from utils import readJson, addData, getClassName, writeJson
 import cv2
 import time
 from efficientnet_pytorch import EfficientNet
@@ -38,6 +38,35 @@ def showCamera(path):
 	cap.release()
 	cv2.destroyAllWindows()
 
+def changePassword(email, oldPassword, newPassword, confirmPassword):
+	print(email, oldPassword, newPassword, confirmPassword)
+	if email == '' or oldPassword == '' or newPassword == '' or confirmPassword == '':
+		print("Vui long nhap day du thong tin")
+		return -1
+	
+	userData = readJson()
+	key = email
+
+	# check email exist
+	if key not in userData:
+		print("Ko ton tai email !!")
+		return -2
+	
+	if userData[key].split("/")[2] != oldPassword:
+		print("Sai current password")
+		return -3
+	
+	if newPassword != confirmPassword:
+		print("Sai Confirm Password!!")
+		return -4
+	
+	userData[key] = f'{userData[key].split("/")[0]}/{userData[key].split("/")[1]}/{newPassword}'
+	writeJson(userData)
+	print("Change password Successfully !!")
+	return 1
+
+
+
 def addPatientData(name, cameraID):
 	print(name, cameraID)
 	if name == '' or cameraID == '':
@@ -73,7 +102,7 @@ def loginUser(email, password):
 	
 	if userData[key].split("/")[2] == password:
 		print("Login thanh cong")
-		return 1, [userData[key].split("/")[0], userData[key].split("/")[1]]
+		return 1, [userData[key].split("/")[0], userData[key].split("/")[1], email]
 	else:
 		print("Sai Password !!")
 		return -3, None
